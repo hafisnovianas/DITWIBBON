@@ -42,8 +42,21 @@
 
             <!-- Kontrol Editor -->
             <div class="space-y-4">
+
+                <!-- Tombol Unggah Bingkai (Simulasi Kreator) -->
+                <div class="p-3 bg-indigo-50 border border-indigo-100 rounded-lg">
+                    <label class="block text-sm font-bold text-indigo-700 mb-1">📝 [Kreator] Unggah Bingkai (PNG)</label>
+                    <input type="file" id="frameUpload" accept="image/png" 
+                           class="block w-full text-sm text-gray-500
+                                  file:mr-4 file:py-1 file:px-3
+                                  file:rounded-full file:border-0
+                                  file:text-xs file:font-semibold
+                                  file:bg-indigo-100 file:text-indigo-700
+                                  hover:file:bg-indigo-200 cursor-pointer">
+                    <p class="text-xs text-indigo-500 mt-1">Pastikan file berformat PNG dan memiliki area transparan.</p>
+                </div>
                 
-                <!-- Tombol Unggah -->
+                <!-- Tombol Unggah Foto -->
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">1. Pilih Foto Anda</label>
                     <input type="file" id="photoUpload" accept="image/png, image/jpeg" 
@@ -85,6 +98,7 @@
         
         // Elemen DOM
         const photoUpload = document.getElementById('photoUpload');
+        const frameUpload = document.getElementById('frameUpload'); // Tambahan elemen bingkai
         const zoomSlider = document.getElementById('zoomSlider');
         const downloadBtn = document.getElementById('downloadBtn');
 
@@ -120,6 +134,26 @@
         // Load bingkai saat aplikasi pertama kali berjalan
         frameImg.onload = drawCanvas;
         frameImg.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(defaultFrameSVG);
+
+        // --- Event Listener: Unggah Bingkai PNG (Kreator) ---
+        frameUpload.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            // Validasi file harus PNG (meskipun sudah di filter di HTML)
+            if (file.type !== 'image/png') {
+                alert('Mohon unggah file dengan format PNG.');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                // Ganti sumber bingkai dengan file PNG yang baru diunggah
+                frameImg.src = event.target.result;
+                // drawCanvas() akan otomatis dipanggil karena kita sudah set frameImg.onload di atas
+            };
+            reader.readAsDataURL(file);
+        });
 
         // Fungsi Utama untuk Menggambar ulang isi Canvas
         function drawCanvas() {
