@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>diTwibbon - MVP Fase 1</title>
+    <!-- Menggunakan Tailwind CSS via CDN untuk styling cepat dan responsif -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Memastikan canvas responsif di perangkat mobile namun resolusi aslinya tetap HD */
+        canvas {
+            touch-action: none; /* Mencegah scrolling browser saat menggeser foto di canvas */
+            width: 100%;
+            height: auto;
+            background-image: linear-gradient(45deg, #ccc 25%, transparent 25%), 
+                              linear-gradient(135deg, #ccc 25%, transparent 25%),
+                              linear-gradient(45deg, transparent 75%, #ccc 75%),
+                              linear-gradient(135deg, transparent 75%, #ccc 75%);
+            background-size: 20px 20px; /* Pola transparan (checkerboard) untuk background */
+            background-position: 0 0, 10px 0, 10px -10px, 0px 10px;
+            background-color: #fff;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen text-gray-800">
+
+    <main class="max-w-lg mx-auto py-8 px-4">
+        <!-- Header -->
+        <header class="text-center mb-6">
+            <h1 class="text-3xl font-bold text-blue-600 mb-2">diTwibbon</h1>
+            <p class="text-sm text-gray-500">Fase 1: Proof of Concept (Client-Side Rendering)</p>
+        </header>
+
+        <!-- Area Editor Utama -->
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 md:p-6 mb-6">
+            
+            <!-- Kontainer Canvas -->
+            <div class="relative w-full rounded-lg overflow-hidden border-2 border-dashed border-gray-300 mb-4 bg-gray-50">
+                <!-- Canvas diset ke ukuran HD (1080x1080) untuk hasil export yang bagus -->
+                <canvas id="twibbonCanvas" width="1080" height="1080"></canvas>
+            </div>
+
+            <!-- Kontrol Editor -->
+            <div class="space-y-4">
+                
+                <!-- Tombol Unggah -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">1. Pilih Foto Anda</label>
+                    <input type="file" id="photoUpload" accept="image/png, image/jpeg" 
+                           class="block w-full text-sm text-gray-500
+                                  file:mr-4 file:py-2 file:px-4
+                                  file:rounded-full file:border-0
+                                  file:text-sm file:font-semibold
+                                  file:bg-blue-50 file:text-blue-700
+                                  hover:file:bg-blue-100 cursor-pointer">
+                </div>
+
+                <!-- Kontrol Zoom -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">2. Sesuaikan Ukuran (Zoom)</label>
+                    <input type="range" id="zoomSlider" min="0.1" max="3" step="0.05" value="1" 
+                           class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                    <p class="text-xs text-gray-400 mt-1">Gunakan slider untuk zoom, lalu klik & geser foto pada kanvas di atas.</p>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Tombol Aksi -->
+        <div class="flex flex-col gap-3">
+            <button id="downloadBtn" 
+                    class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-xl transition duration-200 flex items-center justify-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" />
+                </svg>
+                Unduh Hasil
+            </button>
+        </div>
+    </main>
+
+    <script>
+        // Inisialisasi Variabel Canvas & Context
+        const canvas = document.getElementById('twibbonCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        // Elemen DOM
+        const photoUpload = document.getElementById('photoUpload');
+        const zoomSlider = document.getElementById('zoomSlider');
+        const downloadBtn = document.getElementById('downloadBtn');
+
+        // State / Data Aplikasi
+        let photoImg = null;       // Objek foto pengguna
+        let frameImg = new Image(); // Objek bingkai twibbon
+        
+        // State Transformasi Foto
+        let photoX = 0;
+        let photoY = 0;
+        let photoScale = 1;
+        
+        // State Interaksi (Drag/Geser)
+        let isDragging = false;
+        let startX = 0;
+        let startY = 0;
+
+        // Bingkai Default (Menggunakan SVG Data URI agar tidak perlu external file untuk PoC)
+        const defaultFrameSVG = `
+            <svg width="1080" height="1080" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                    <mask id="hole">
+                        <rect width="1080" height="1080" fill="white"/>
+                        <circle cx="540" cy="540" r="400" fill="black"/>
+                    </mask>
+                </defs>
+                <rect width="1080" height="1080" fill="#2563eb" mask="url(#hole)"/>
+                <rect width="1080" height="1080" fill="none" stroke="#facc15" stroke-width="40"/>
+                <circle cx="540" cy="540" r="400" fill="none" stroke="#facc15" stroke-width="20"/>
+                <text x="540" y="1000" font-family="sans-serif" font-size="60" font-weight="bold" fill="white" text-anchor="middle">KAMPANYE DITWIBBON</text>
+            </svg>
+        `;
+        // Load bingkai saat aplikasi pertama kali berjalan
+        frameImg.onload = drawCanvas;
+        frameImg.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(defaultFrameSVG);
+
+        // Fungsi Utama untuk Menggambar ulang isi Canvas
+        function drawCanvas() {
+            // Bersihkan canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // 1. Gambar Foto Pengguna (Di layer bawah)
+            if (photoImg) {
+                const scaledWidth = photoImg.width * photoScale;
+                const scaledHeight = photoImg.height * photoScale;
+                ctx.drawImage(photoImg, photoX, photoY, scaledWidth, scaledHeight);
+            }
+
+            // 2. Gambar Bingkai Twibbon (Di layer atas)
+            ctx.drawImage(frameImg, 0, 0, canvas.width, canvas.height);
+        }
+
+        // --- Event Listener: Unggah Foto ---
+        photoUpload.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                photoImg = new Image();
+                photoImg.onload = () => {
+                    // Kalkulasi scale awal agar foto menutupi area canvas dengan baik
+                    const scaleX = canvas.width / photoImg.width;
+                    const scaleY = canvas.height / photoImg.height;
+                    photoScale = Math.max(scaleX, scaleY); // Pilih scale terbesar agar tidak ada area kosong
+                    
+                    // Tengahkan foto
+                    photoX = (canvas.width - (photoImg.width * photoScale)) / 2;
+                    photoY = (canvas.height - (photoImg.height * photoScale)) / 2;
+                    
+                    // Update slider zoom ke nilai awal
+                    zoomSlider.value = photoScale;
+                    
+                    drawCanvas();
+                };
+                photoImg.src = event.target.result;
+            };
+            reader.readAsDataURL(file);
+        });
+
+        // --- Event Listener: Zoom Slider ---
+        zoomSlider.addEventListener('input', (e) => {
+            if (!photoImg) return;
+            
+            const oldScale = photoScale;
+            photoScale = parseFloat(e.target.value);
+            
+            // Logika agar saat di-zoom, pusat fotonya tetap berada di tengah layar
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+            
+            photoX = centerX - (centerX - photoX) * (photoScale / oldScale);
+            photoY = centerY - (centerY - photoY) * (photoScale / oldScale);
+            
+            drawCanvas();
+        });
+
+        // --- Logika Drag & Drop (Menggeser Foto) ---
+        
+        // Fungsi pembantu untuk mendapatkan koordinat yang akurat (mendukung Mouse & Touch)
+        function getEventPos(e) {
+            const rect = canvas.getBoundingClientRect();
+            // Rasio ukuran asli canvas (1080) terhadap ukuran tampilannya di layar
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+            
+            let clientX, clientY;
+            if (e.touches && e.touches.length > 0) {
+                clientX = e.touches[0].clientX;
+                clientY = e.touches[0].clientY;
+            } else {
+                clientX = e.clientX;
+                clientY = e.clientY;
+            }
+
+            return {
+                x: (clientX - rect.left) * scaleX,
+                y: (clientY - rect.top) * scaleY
+            };
+        }
+
+        function onStartDrag(e) {
+            if (!photoImg) return;
+            isDragging = true;
+            const pos = getEventPos(e);
+            startX = pos.x - photoX;
+            startY = pos.y - photoY;
+        }
+
+        function onDrag(e) {
+            if (!isDragging || !photoImg) return;
+            e.preventDefault(); // Mencegah scrolling layer saat digeser di mobile
+            const pos = getEventPos(e);
+            photoX = pos.x - startX;
+            photoY = pos.y - startY;
+            drawCanvas();
+        }
+
+        function onEndDrag() {
+            isDragging = false;
+        }
+
+        // Mouse Events
+        canvas.addEventListener('mousedown', onStartDrag);
+        canvas.addEventListener('mousemove', onDrag);
+        window.addEventListener('mouseup', onEndDrag);
+
+        // Touch Events (Untuk Smartphone)
+        canvas.addEventListener('touchstart', onStartDrag, { passive: false });
+        canvas.addEventListener('touchmove', onDrag, { passive: false });
+        window.addEventListener('touchend', onEndDrag);
+
+        // --- Event Listener: Download ---
+        downloadBtn.addEventListener('click', () => {
+            if (!photoImg) {
+                alert('Silakan unggah foto Anda terlebih dahulu.');
+                return;
+            }
+            
+            // Konversi canvas menjadi data URL PNG
+            const dataURL = canvas.toDataURL('image/png', 1.0);
+            
+            // Buat elemen link sementara untuk men-trigger download
+            const link = document.createElement('a');
+            link.download = 'diTwibbon-Campaign.png';
+            link.href = dataURL;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        });
+
+    </script>
+</body>
+</html>
