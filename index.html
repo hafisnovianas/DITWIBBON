@@ -36,12 +36,32 @@
             
             <!-- Kontainer Canvas -->
             <div class="relative w-full rounded-lg overflow-hidden border-2 border-dashed border-gray-300 mb-4 bg-gray-50">
-                <!-- Canvas diset ke ukuran HD (1080x1080) untuk hasil export yang bagus -->
+                <!-- Canvas diset ke ukuran awal (1080x1080) -->
                 <canvas id="twibbonCanvas" width="1080" height="1080"></canvas>
             </div>
 
             <!-- Kontrol Editor -->
             <div class="space-y-4">
+
+                <div class="mb-2">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Ukuran Bingkai</label>
+                    <div class="flex gap-4">
+                        <label class="flex-1 cursor-pointer">
+                            <input type="radio" name="frameRatio" value="1:1" class="peer sr-only" checked>
+                            <div class="text-center p-2 rounded-lg border border-gray-200 peer-checked:bg-blue-50 peer-checked:border-blue-500 peer-checked:text-blue-700 hover:bg-gray-50 transition">
+                                <div class="text-sm font-semibold">Persegi 1:1</div>
+                                <div class="text-xs text-gray-500">(1080 x 1080)</div>
+                            </div>
+                        </label>
+                        <label class="flex-1 cursor-pointer">
+                            <input type="radio" name="frameRatio" value="4:5" class="peer sr-only">
+                            <div class="text-center p-2 rounded-lg border border-gray-200 peer-checked:bg-blue-50 peer-checked:border-blue-500 peer-checked:text-blue-700 hover:bg-gray-50 transition">
+                                <div class="text-sm font-semibold">Potret 4:5</div>
+                                <div class="text-xs text-gray-500">(1080 x 1350)</div>
+                            </div>
+                        </label>
+                    </div>
+                </div>
 
                 <!-- Tombol Unggah Bingkai (Simulasi Kreator) -->
                 <div class="p-3 bg-indigo-50 border border-indigo-100 rounded-lg">
@@ -101,10 +121,12 @@
         const frameUpload = document.getElementById('frameUpload'); // Tambahan elemen bingkai
         const zoomSlider = document.getElementById('zoomSlider');
         const downloadBtn = document.getElementById('downloadBtn');
+        const ratioRadios = document.querySelectorAll('input[name="frameRatio"]');
 
         // State / Data Aplikasi
         let photoImg = null;       // Objek foto pengguna
         let frameImg = new Image(); // Objek bingkai twibbon
+        let isCustomFrame = false;  // Menandai apakah pengguna menggunakan bingkai kustom
         
         // State Transformasi Foto
         let photoX = 0;
@@ -116,24 +138,74 @@
         let startX = 0;
         let startY = 0;
 
-        // Bingkai Default (Menggunakan SVG Data URI agar tidak perlu external file untuk PoC)
-        const defaultFrameSVG = `
+        // Bingkai Default 1:1 (Persegi)
+        const defaultFrameSVG_1x1 = `
             <svg width="1080" height="1080" xmlns="http://www.w3.org/2000/svg">
                 <defs>
-                    <mask id="hole">
+                    <mask id="hole1">
                         <rect width="1080" height="1080" fill="white"/>
                         <circle cx="540" cy="540" r="400" fill="black"/>
                     </mask>
                 </defs>
-                <rect width="1080" height="1080" fill="#2563eb" mask="url(#hole)"/>
+                <rect width="1080" height="1080" fill="#2563eb" mask="url(#hole1)"/>
                 <rect width="1080" height="1080" fill="none" stroke="#facc15" stroke-width="40"/>
                 <circle cx="540" cy="540" r="400" fill="none" stroke="#facc15" stroke-width="20"/>
-                <text x="540" y="1000" font-family="sans-serif" font-size="60" font-weight="bold" fill="white" text-anchor="middle">KAMPANYE DITWIBBON</text>
+                <text x="540" y="1000" font-family="sans-serif" font-size="60" font-weight="bold" fill="white" text-anchor="middle">KAMPANYE 1:1</text>
             </svg>
         `;
-        // Load bingkai saat aplikasi pertama kali berjalan
+
+        // Bingkai Default 4:5 (Potret)
+        const defaultFrameSVG_4x5 = `
+            <svg width="1080" height="1350" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                    <mask id="hole2">
+                        <rect width="1080" height="1350" fill="white"/>
+                        <circle cx="540" cy="675" r="400" fill="black"/>
+                    </mask>
+                </defs>
+                <rect width="1080" height="1350" fill="#2563eb" mask="url(#hole2)"/>
+                <rect width="1080" height="1350" fill="none" stroke="#facc15" stroke-width="40"/>
+                <circle cx="540" cy="675" r="400" fill="none" stroke="#facc15" stroke-width="20"/>
+                <text x="540" y="1250" font-family="sans-serif" font-size="60" font-weight="bold" fill="white" text-anchor="middle">KAMPANYE 4:5</text>
+            </svg>
+        `;
+
+        // Load bingkai 1:1 saat aplikasi pertama kali berjalan
         frameImg.onload = drawCanvas;
-        frameImg.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(defaultFrameSVG);
+        frameImg.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(defaultFrameSVG_1x1);
+
+        ratioRadios.forEach(radio => {
+            radio.addEventListener('change', (e) => {
+                const ratio = e.target.value;
+                
+                if (ratio === '1:1') {
+                    canvas.width = 1080;
+                    canvas.height = 1080;
+                    if (!isCustomFrame) {
+                        frameImg.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(defaultFrameSVG_1x1);
+                    }
+                } else if (ratio === '4:5') {
+                    canvas.width = 1080;
+                    canvas.height = 1350;
+                    if (!isCustomFrame) {
+                        frameImg.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(defaultFrameSVG_4x5);
+                    }
+                }
+
+                // Jika sudah ada foto yang diunggah, hitung ulang posisi dan scalenya agar pas di canvas yang baru
+                if (photoImg) {
+                    const scaleX = canvas.width / photoImg.width;
+                    const scaleY = canvas.height / photoImg.height;
+                    photoScale = Math.max(scaleX, scaleY);
+                    
+                    photoX = (canvas.width - (photoImg.width * photoScale)) / 2;
+                    photoY = (canvas.height - (photoImg.height * photoScale)) / 2;
+                    zoomSlider.value = photoScale;
+                }
+                
+                drawCanvas();
+            });
+        });
 
         // --- Event Listener: Unggah Bingkai PNG (Kreator) ---
         frameUpload.addEventListener('change', (e) => {
@@ -148,6 +220,7 @@
 
             const reader = new FileReader();
             reader.onload = (event) => {
+                isCustomFrame = true; // Tandai bahwa pengguna sudah mengunggah bingkai kustom
                 // Ganti sumber bingkai dengan file PNG yang baru diunggah
                 frameImg.src = event.target.result;
                 // drawCanvas() akan otomatis dipanggil karena kita sudah set frameImg.onload di atas
