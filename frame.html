@@ -19,24 +19,9 @@
             background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
         }
 
-        /* Scaling frame HD (1080x1350) agar pas dengan ukuran layar HP/Web */
-        #print-zone {
-            width: 280px;
-            height: 350px;
-        }
+        /* Frame aslinya dikunci origin-nya agar mudah di-scale JS */
         #export-frame {
-            transform: scale(calc(280 / 1080));
-        }
-        
-        /* Penyesuaian ukuran pada layar tablet/desktop kecil */
-        @media (min-width: 640px) {
-            #print-zone {
-                width: 320px;
-                height: 400px;
-            }
-            #export-frame {
-                transform: scale(calc(320 / 1080));
-            }
+            transform-origin: top left;
         }
     </style>
 </head>
@@ -52,14 +37,14 @@
     </div>
 
     <!-- AREA STAGE (PREVIEW - Mengisi Sisa Ruang Tengah) -->
-    <div class="bg-gray-50 flex-1 w-full flex justify-center items-center relative overflow-hidden">
+    <div id="stage-area" class="bg-gray-50 flex-1 w-full flex justify-center items-center relative overflow-hidden">
         <div class="absolute inset-0 bg-gradient-to-b from-gray-100/50 to-transparent pointer-events-none"></div>
         
-        <!-- Wrapper Frame (Ukuran dan skala 100% AMAN, tidak diubah) -->
+        <!-- Wrapper Frame (Ukuran dinamis oleh JS) -->
         <div id="print-zone" class="relative checkerboard overflow-hidden border border-gray-200/60 shadow-lg rounded-xl bg-white z-10 transition-transform duration-300 hover:scale-[1.02]">
             
-            <!-- Kanvas Frame Ukuran Asli 1080x1350 (Diperkecil oleh CSS transform di web) -->
-            <div id="export-frame" class="w-[1080px] h-[1350px] origin-top-left relative bg-transparent">
+            <!-- Kanvas Frame Ukuran Asli 1080x1350 -->
+            <div id="export-frame" class="w-[1080px] h-[1350px] absolute top-0 left-0 bg-transparent">
                     
                     <!-- LAYER BELAKANG: Foto yang di-upload -->
                     <img id="uploaded-image" src="" class="absolute top-0 left-0 w-full h-full object-cover z-0 hidden transition-opacity duration-500" alt="Uploaded Photo" crossorigin="anonymous" />
@@ -107,6 +92,43 @@
         </div>
 
     <script>
+        // Fungsi Penyesuaian Skala Preview (Dinamis untuk HP & Laptop)
+        function adjustPreviewScale() {
+            const stage = document.getElementById('stage-area');
+            const printZone = document.getElementById('print-zone');
+            const exportFrame = document.getElementById('export-frame');
+            
+            if (!stage || !printZone || !exportFrame) return;
+
+            // Margin/Padding aman (40px) agar tidak menabrak tombol atau pinggir layar
+            const padding = 40; 
+            const availableWidth = stage.clientWidth - padding;
+            const availableHeight = stage.clientHeight - padding;
+
+            // Logika Rasio Tetap 4:5 (1080x1350)
+            let calcWidth = availableWidth;
+            let calcHeight = calcWidth * (1350 / 1080);
+
+            // Jika tingginya melebihi layar (kasus di Laptop/Desktop), gunakan batas tinggi sebagai patokan utama
+            if (calcHeight > availableHeight) {
+                calcHeight = availableHeight;
+                calcWidth = calcHeight * (1080 / 1350);
+            }
+
+            // Terapkan batas ukuran ke wadah luar
+            printZone.style.width = calcWidth + 'px';
+            printZone.style.height = calcHeight + 'px';
+
+            // Perkecil isi visual frame tanpa mengubah ukuran asli export-nya
+            const scale = calcWidth / 1080;
+            exportFrame.style.transform = `scale(${scale})`;
+        }
+
+        // Pantau ukuran layar setiap saat agar tetap responsif
+        window.addEventListener('resize', adjustPreviewScale);
+        // Jalankan saat aplikasi pertama kali dibuka
+        setTimeout(adjustPreviewScale, 50);
+
         // Fungsi untuk menangani foto yang diupload ke UI Preview
         function previewImage(event) {
             const input = event.target;
