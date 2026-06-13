@@ -25,10 +25,12 @@
         }
     </style>
 </head>
-<body class="bg-white h-[100dvh] w-full overflow-hidden flex flex-col font-sans text-gray-800 antialiased selection:bg-blue-200">
+<body class="bg-gray-100 flex justify-center items-center h-[100dvh] w-full overflow-hidden font-sans text-gray-800 antialiased selection:bg-blue-200">
+
+    <div class="w-full max-w-[420px] h-[100dvh] bg-white flex flex-col relative shadow-2xl sm:border-x sm:border-gray-300 overflow-hidden">
 
     <!-- HEADER APP (Menempel di Atas) -->
-    <div class="pt-6 pb-4 px-6 flex flex-col items-center text-center bg-white z-20 shadow-sm relative">
+    <div class="pt-6 pb-4 px-6 flex flex-col items-center text-center bg-white z-20 shadow-sm relative shrink-0">
         <h1 class="text-2xl font-black tracking-tight text-gray-900 mb-2">Frame Generator</h1>
         <p class="text-[13px] font-medium text-gray-500 bg-gray-100/80 px-4 py-1.5 rounded-full inline-flex items-center gap-1.5">
             <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
@@ -70,7 +72,7 @@
     </div>
 
     <!-- KONTROL / TOMBOL (Menempel di Bawah) -->
-    <div class="p-6 pb-8 flex flex-col gap-3.5 bg-white z-20 shadow-[0_-10px_20px_-10px_rgba(0,0,0,0.05)] border-t border-gray-100">
+    <div class="p-6 pb-8 flex flex-col gap-3.5 bg-white z-20 shadow-[0_-10px_20px_-10px_rgba(0,0,0,0.05)] border-t border-gray-100 shrink-0">
         
         <!-- Tombol Upload Foto (Secondary Style) -->
         <button onclick="document.getElementById('image-input').click()" class="w-full bg-white hover:bg-gray-50 text-gray-700 font-bold py-4 px-4 rounded-2xl transition-all duration-200 flex items-center justify-center gap-2 border-2 border-gray-200 active:scale-[0.98]">
@@ -90,6 +92,8 @@
             </button>
             
         </div>
+        
+    </div> <!-- Penutup Kontainer Aplikasi -->
 
     <script>
         // Fungsi Penyesuaian Skala Preview (Dinamis untuk HP & Laptop)
