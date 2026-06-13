@@ -30,12 +30,8 @@
     <div class="w-full max-w-[420px] h-[100dvh] bg-white flex flex-col relative shadow-2xl sm:border-x sm:border-gray-300 overflow-hidden">
 
     <!-- HEADER APP (Menempel di Atas) -->
-    <div class="pt-6 pb-4 px-6 flex flex-col items-center text-center bg-white z-20 shadow-sm relative shrink-0">
-        <h1 class="text-2xl font-black tracking-tight text-gray-900 mb-2">Frame Generator</h1>
-        <p class="text-[13px] font-medium text-gray-500 bg-gray-100/80 px-4 py-1.5 rounded-full inline-flex items-center gap-1.5">
-            <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
-            Sistem Canvas Siap
-        </p>
+    <div class="pt-5 pb-5 px-6 flex flex-col items-center text-center bg-white z-20 shadow-sm relative shrink-0">
+        <h1 class="text-2xl font-black tracking-tight text-gray-900">Frame Generator</h1>
     </div>
 
     <!-- AREA STAGE (PREVIEW - Mengisi Sisa Ruang Tengah) -->
@@ -61,7 +57,7 @@
                         <!-- Box Solid Krem Putih tempat Teks -->
                     <div class="absolute bottom-0 left-0 w-full h-[100px] bg-[#FBF8F1] flex items-center justify-center pb-4">
                         <!-- Teks Username HANYA teks tanpa ikon -->
-                        <span class="text-[#2d3748] font-bold text-[38px] leading-none tracking-normal">
+                        <span id="username-preview" class="text-[#2d3748] font-bold text-[38px] leading-none tracking-normal">
                             @renungmenung
                         </span>
                     </div>
@@ -74,6 +70,12 @@
     <!-- KONTROL / TOMBOL (Menempel di Bawah) -->
     <div class="p-6 pb-8 flex flex-col gap-3.5 bg-white z-20 shadow-[0_-10px_20px_-10px_rgba(0,0,0,0.05)] border-t border-gray-100 shrink-0">
         
+        <!-- Input Username Dinamis -->
+        <div class="flex flex-col gap-1.5 mb-1">
+            <label for="username-input" class="text-[13px] font-bold text-gray-500 uppercase tracking-wider px-1">Nama Akun (Teks Bawah)</label>
+            <input type="text" id="username-input" value="@renungmenung" placeholder="Ketik nama akun..." oninput="updateUsername()" class="w-full bg-gray-50 border-2 border-gray-200 text-gray-800 text-base font-bold rounded-xl px-4 py-3.5 focus:outline-none focus:border-gray-900 focus:bg-white transition-colors placeholder-gray-400">
+        </div>
+
         <!-- Tombol Upload Foto (Secondary Style) -->
         <button onclick="document.getElementById('image-input').click()" class="w-full bg-white hover:bg-gray-50 text-gray-700 font-bold py-4 px-4 rounded-2xl transition-all duration-200 flex items-center justify-center gap-2 border-2 border-gray-200 active:scale-[0.98]">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -132,6 +134,14 @@
         window.addEventListener('resize', adjustPreviewScale);
         // Jalankan saat aplikasi pertama kali dibuka
         setTimeout(adjustPreviewScale, 50);
+
+        // Fungsi Live Update Text Username
+        function updateUsername() {
+            const inputVal = document.getElementById('username-input').value;
+            // Tampilkan teks default jika input dikosongkan
+            const displayVal = inputVal.trim() === '' ? '@renungmenung' : inputVal;
+            document.getElementById('username-preview').innerText = displayVal;
+        }
 
         // Fungsi untuk menangani foto yang diupload ke UI Preview
         function previewImage(event) {
@@ -236,12 +246,18 @@
                     // Mengangkat teks sedikit karena padding pb-4 (di sini diset -8px dari titik tengah vertical kotak)
                     const textY = boxY + (boxHeight / 2) - 8; 
                     
-                    // Render teks
-                    ctx.fillText('@renungmenung', canvas.width / 2, textY);
+                    // Ambil teks yang sedang diketik user saat ini
+                    const currentUsername = document.getElementById('username-preview').innerText;
+                    
+                    // Render teks dinamis
+                    ctx.fillText(currentUsername, canvas.width / 2, textY);
+
+                    // Bersihkan nama file dari karakter aneh untuk nama unduhan
+                    const cleanFileName = currentUsername.replace(/[^a-zA-Z0-9]/g, '');
 
                     // Picu download PNG HD
                     const downloadLink = document.createElement('a');
-                    downloadLink.download = 'Frame-renungmenung-HD.png';
+                    downloadLink.download = `Frame-${cleanFileName}-HD.png`;
                     downloadLink.href = canvas.toDataURL('image/png');
                     downloadLink.click();
 
