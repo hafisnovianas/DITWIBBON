@@ -40,30 +40,26 @@
         }
     </style>
 </head>
-<body class="bg-[#f8fafc] min-h-screen flex items-center justify-center p-4 font-sans text-gray-800 antialiased selection:bg-blue-200">
+<body class="bg-white h-[100dvh] w-full overflow-hidden flex flex-col font-sans text-gray-800 antialiased selection:bg-blue-200">
 
-    <!-- Wrapper Aplikasi (Unified App Card) -->
-    <div class="max-w-sm sm:max-w-md w-full bg-white rounded-[2rem] shadow-[0_20px_50px_-12px_rgba(0,0,0,0.1)] border border-gray-100 overflow-hidden flex flex-col">
+    <!-- HEADER APP (Menempel di Atas) -->
+    <div class="pt-6 pb-4 px-6 flex flex-col items-center text-center bg-white z-20 shadow-sm relative">
+        <h1 class="text-2xl font-black tracking-tight text-gray-900 mb-2">Frame Generator</h1>
+        <p class="text-[13px] font-medium text-gray-500 bg-gray-100/80 px-4 py-1.5 rounded-full inline-flex items-center gap-1.5">
+            <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+            Sistem Canvas Siap
+        </p>
+    </div>
+
+    <!-- AREA STAGE (PREVIEW - Mengisi Sisa Ruang Tengah) -->
+    <div class="bg-gray-50 flex-1 w-full flex justify-center items-center relative overflow-hidden">
+        <div class="absolute inset-0 bg-gradient-to-b from-gray-100/50 to-transparent pointer-events-none"></div>
         
-        <!-- HEADER APP -->
-        <div class="pt-8 pb-5 px-6 flex flex-col items-center text-center">
-            <div class="w-12 h-1 bg-gray-200 rounded-full mb-6"></div> <!-- Aksen pill di atas -->
-            <h1 class="text-2xl font-black tracking-tight text-gray-900 mb-2">Frame Generator</h1>
-            <p class="text-[13px] font-medium text-gray-500 bg-gray-100/80 px-4 py-1.5 rounded-full inline-flex items-center gap-1.5">
-                <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
-                Sistem Canvas Siap
-            </p>
-        </div>
-
-        <!-- AREA STAGE (PREVIEW) -->
-        <div class="bg-gray-50 py-8 border-y border-gray-100 flex justify-center shadow-inner relative">
-            <div class="absolute inset-0 bg-gradient-to-b from-gray-100/50 to-transparent pointer-events-none"></div>
+        <!-- Wrapper Frame (Ukuran dan skala 100% AMAN, tidak diubah) -->
+        <div id="print-zone" class="relative checkerboard overflow-hidden border border-gray-200/60 shadow-lg rounded-xl bg-white z-10 transition-transform duration-300 hover:scale-[1.02]">
             
-            <!-- Wrapper Frame dengan checkerboard untuk pratinjau Web -->
-            <div id="print-zone" class="relative checkerboard overflow-hidden border border-gray-200/60 shadow-lg rounded-xl bg-white z-10 transition-transform duration-300 hover:scale-[1.02]">
-                
-                <!-- Kanvas Frame Ukuran Asli 1080x1350 (Diperkecil oleh CSS transform di web) -->
-                <div id="export-frame" class="w-[1080px] h-[1350px] origin-top-left relative bg-transparent">
+            <!-- Kanvas Frame Ukuran Asli 1080x1350 (Diperkecil oleh CSS transform di web) -->
+            <div id="export-frame" class="w-[1080px] h-[1350px] origin-top-left relative bg-transparent">
                     
                     <!-- LAYER BELAKANG: Foto yang di-upload -->
                     <img id="uploaded-image" src="" class="absolute top-0 left-0 w-full h-full object-cover z-0 hidden transition-opacity duration-500" alt="Uploaded Photo" crossorigin="anonymous" />
@@ -76,23 +72,23 @@
                         </svg>
                         
                         <!-- Box Solid Krem Putih tempat Teks -->
-                        <div class="absolute bottom-0 left-0 w-full h-[100px] bg-[#FBF8F1] flex items-center justify-center pb-4">
-                            <!-- Teks Username HANYA teks tanpa ikon -->
-                            <span class="text-[#2d3748] font-bold text-[38px] leading-none tracking-normal">
-                                @renungmenung
-                            </span>
-                        </div>
+                    <div class="absolute bottom-0 left-0 w-full h-[100px] bg-[#FBF8F1] flex items-center justify-center pb-4">
+                        <!-- Teks Username HANYA teks tanpa ikon -->
+                        <span class="text-[#2d3748] font-bold text-[38px] leading-none tracking-normal">
+                            @renungmenung
+                        </span>
                     </div>
-
                 </div>
+
             </div>
         </div>
+    </div>
 
-        <!-- KONTROL / TOMBOL -->
-        <div class="p-6 pb-8 flex flex-col gap-3.5 bg-white">
-            
-            <!-- Tombol Upload Foto (Secondary Style) -->
-            <button onclick="document.getElementById('image-input').click()" class="w-full bg-white hover:bg-gray-50 text-gray-700 font-bold py-4 px-4 rounded-2xl transition-all duration-200 flex items-center justify-center gap-2 border-2 border-gray-200 active:scale-[0.98]">
+    <!-- KONTROL / TOMBOL (Menempel di Bawah) -->
+    <div class="p-6 pb-8 flex flex-col gap-3.5 bg-white z-20 shadow-[0_-10px_20px_-10px_rgba(0,0,0,0.05)] border-t border-gray-100">
+        
+        <!-- Tombol Upload Foto (Secondary Style) -->
+        <button onclick="document.getElementById('image-input').click()" class="w-full bg-white hover:bg-gray-50 text-gray-700 font-bold py-4 px-4 rounded-2xl transition-all duration-200 flex items-center justify-center gap-2 border-2 border-gray-200 active:scale-[0.98]">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
@@ -109,7 +105,6 @@
             </button>
             
         </div>
-    </div>
 
     <script>
         // Fungsi untuk menangani foto yang diupload ke UI Preview
