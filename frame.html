@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <!-- Meta viewport yang sangat penting untuk mobile -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Frame IG @renungmenung</title>
+    <title>Frame IG @kalarenung</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         /* Pattern untuk menunjukkan area transparan pada preview web */
@@ -53,7 +53,7 @@
                     <div class="absolute bottom-0 left-0 w-full h-[100px] bg-[#FBF8F1] flex items-center justify-center pb-4">
                         <!-- Teks Username HANYA teks tanpa ikon -->
                         <span id="username-preview" class="text-[#2d3748] font-bold text-[38px] leading-none tracking-normal">
-                            @renungmenung
+                            @kalarenung
                         </span>
                     </div>
                 </div>
@@ -67,7 +67,7 @@
         
         <!-- Input Username Dinamis -->
         <div>
-            <input type="text" id="username-input" value="@renungmenung" placeholder="Ketik nama akun..." oninput="updateUsername()" class="w-full bg-gray-50 border-2 border-gray-200 text-gray-800 text-base font-bold rounded-xl px-4 py-2.5 focus:outline-none focus:border-gray-900 focus:bg-white transition-colors placeholder-gray-400">
+            <input type="text" id="username-input" value="@kalarenung" placeholder="Ketik nama akun..." oninput="updateUsername()" class="w-full bg-gray-50 border-2 border-gray-200 text-gray-800 text-base font-bold rounded-xl px-4 py-2.5 focus:outline-none focus:border-gray-900 focus:bg-white transition-colors placeholder-gray-400">
         </div>
 
         <!-- Baris Tombol Bersebelahan -->
@@ -134,7 +134,7 @@
         function updateUsername() {
             const inputVal = document.getElementById('username-input').value;
             // Tampilkan teks default jika input dikosongkan
-            const displayVal = inputVal.trim() === '' ? '@renungmenung' : inputVal;
+            const displayVal = inputVal.trim() === '' ? '@kalarenung' : inputVal;
             document.getElementById('username-preview').innerText = displayVal;
         }
 
