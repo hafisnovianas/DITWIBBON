@@ -63,32 +63,33 @@
     </div>
 
     <!-- KONTROL / TOMBOL (Menempel di Bawah) -->
-    <div class="p-6 pb-8 flex flex-col gap-3.5 bg-white z-20 shadow-[0_-10px_20px_-10px_rgba(0,0,0,0.05)] border-t border-gray-100 shrink-0">
+    <div class="p-4 pb-5 flex flex-col gap-3 bg-white z-20 shadow-[0_-10px_20px_-10px_rgba(0,0,0,0.05)] border-t border-gray-100 shrink-0">
         
         <!-- Input Username Dinamis -->
-        <div class="mb-1">
-            <input type="text" id="username-input" value="@renungmenung" placeholder="Ketik nama akun..." oninput="updateUsername()" class="w-full bg-gray-50 border-2 border-gray-200 text-gray-800 text-base font-bold rounded-xl px-4 py-3.5 focus:outline-none focus:border-gray-900 focus:bg-white transition-colors placeholder-gray-400">
+        <div>
+            <input type="text" id="username-input" value="@renungmenung" placeholder="Ketik nama akun..." oninput="updateUsername()" class="w-full bg-gray-50 border-2 border-gray-200 text-gray-800 text-base font-bold rounded-xl px-4 py-2.5 focus:outline-none focus:border-gray-900 focus:bg-white transition-colors placeholder-gray-400">
         </div>
 
-        <!-- Tombol Upload Foto (Secondary Style) -->
-        <button onclick="document.getElementById('image-input').click()" class="w-full bg-white hover:bg-gray-50 text-gray-700 font-bold py-4 px-4 rounded-2xl transition-all duration-200 flex items-center justify-center gap-2 border-2 border-gray-200 active:scale-[0.98]">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <!-- Baris Tombol Bersebelahan -->
+        <div class="grid grid-cols-2 gap-3">
+            <!-- Tombol Upload Foto (Secondary Style) -->
+            <button onclick="document.getElementById('image-input').click()" class="w-full bg-white hover:bg-gray-50 text-gray-700 font-bold py-2.5 px-2 rounded-xl transition-all duration-200 flex items-center justify-center gap-1.5 border-2 border-gray-200 active:scale-[0.98] text-sm">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
-                <span id="btn-text-upload">Pilih Foto Belakang</span>
+                <span id="btn-text-upload" class="truncate">Pilih Foto</span>
             </button>
             <input type="file" id="image-input" accept="image/*" class="hidden" onchange="previewImage(event)">
 
             <!-- Tombol Download (Primary Style) -->
-            <button id="download-btn" onclick="downloadDirectPNG()" class="w-full bg-gray-900 hover:bg-black text-white font-bold py-4 px-4 rounded-2xl transition-all duration-200 flex items-center justify-center gap-2 shadow-[0_8px_20px_-6px_rgba(0,0,0,0.4)] active:scale-[0.98]">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <button id="download-btn" onclick="downloadDirectPNG()" class="w-full bg-gray-900 hover:bg-black text-white font-bold py-2.5 px-2 rounded-xl transition-all duration-200 flex items-center justify-center gap-1.5 shadow-[0_8px_20px_-6px_rgba(0,0,0,0.4)] active:scale-[0.98] text-sm">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                 </svg>
-                <span id="btn-text-download">Simpan Gambar (.PNG)</span>
+                <span id="btn-text-download" class="truncate">Simpan HD</span>
             </button>
-            
         </div>
-        
+            
     </div> <!-- Penutup Kontainer Aplikasi -->
 
     <script>
@@ -151,7 +152,7 @@
                     
                     // UX: Ubah teks tombol setelah foto dipilih
                     document.getElementById('btn-text-upload').innerText = 'Ganti Foto';
-                    document.getElementById('btn-text-download').innerText = 'Simpan Frame & Foto (.PNG)';
+                    document.getElementById('btn-text-download').innerText = 'Simpan HD';
                 };
                 reader.readAsDataURL(file);
             }
