@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Frame IG @renungmenung</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Pattern untuk menunjukkan area transparan pada preview web */
+        .checkerboard {
+            background-color: #ffffff;
+            background-image: 
+                linear-gradient(45deg, #e5e7eb 25%, transparent 25%), 
+                linear-gradient(-45deg, #e5e7eb 25%, transparent 25%), 
+                linear-gradient(45deg, transparent 75%, #e5e7eb 75%), 
+                linear-gradient(-45deg, transparent 75%, #e5e7eb 75%);
+            background-size: 20px 20px;
+            background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+        }
+
+        /* Scaling frame HD (1080x1350) agar pas dengan ukuran layar HP/Web */
+        #print-zone {
+            width: 300px;
+            height: 375px;
+        }
+        #export-frame {
+            transform: scale(calc(300 / 1080));
+        }
+        @media (min-width: 640px) {
+            #print-zone {
+                width: 360px;
+                height: 450px;
+            }
+            #export-frame {
+                transform: scale(calc(360 / 1080));
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen flex flex-col items-center justify-center p-4 font-sans">
+
+    <div class="max-w-md w-full bg-white p-6 pb-4 rounded-t-2xl shadow-md border-x border-t border-gray-200 flex flex-col items-center">
+        <h1 class="text-2xl font-black text-gray-800 mb-1">Frame Generator</h1>
+        <p class="text-sm font-medium text-green-600 bg-green-50 px-3 py-1 rounded-full mb-1">Engine: Native Canvas Direct PNG</p>
+        <p class="text-sm text-gray-500 text-center">Desain HD (1080x1350px). Langsung jadi gambar, anti-miring.</p>
+    </div>
+
+    <!-- Wrapper Frame dengan checkerboard untuk pratinjau Web -->
+    <div id="print-zone" class="relative checkerboard overflow-hidden border border-gray-300 mx-auto shadow-inner bg-white">
+        
+        <!-- Kanvas Frame Ukuran Asli 1080x1350 (Diperkecil oleh CSS transform di web) -->
+        <div id="export-frame" class="w-[1080px] h-[1350px] origin-top-left relative bg-transparent">
+            
+            <!-- LAYER BELAKANG: Foto yang di-upload akan tampil di sini -->
+            <img id="uploaded-image" src="" class="absolute top-0 left-0 w-full h-full object-cover z-0 hidden" alt="Uploaded Photo" crossorigin="anonymous" />
+
+            <!-- LAYER DEPAN: Bagian Bawah Frame (Warna Krem Putih & Berombak) -->
+            <div class="absolute bottom-0 left-0 w-full h-[150px] z-10">
+                <!-- SVG Ombak Krem Putih -->
+                <svg class="absolute top-0 left-0 w-full h-[50px] block" viewBox="0 0 1000 105" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M 0 50 C 75 100, 175 100, 250 50 C 325 0, 425 0, 500 50 C 575 100, 675 100, 750 50 C 825 0, 925 0, 1000 50 L 1000 105 L 0 105 Z" fill="#FBF8F1"></path>
+                </svg>
+                
+                <!-- Box Solid Krem Putih tempat Teks -->
+                <div class="absolute bottom-0 left-0 w-full h-[100px] bg-[#FBF8F1] flex items-center justify-center pb-4">
+                    <!-- Teks Username -->
+                    <span class="text-gray-800 font-bold tracking-widest text-[36px] leading-none pt-1">
+                        @renungmenung
+                    </span>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="max-w-md w-full bg-white p-6 rounded-b-2xl shadow-md border-x border-b border-gray-200 flex flex-col items-center">
+        
+        <div class="flex flex-col gap-3 w-full">
+            <!-- Tombol Upload Foto -->
+            <button onclick="document.getElementById('image-input').click()" class="w-full bg-white hover:bg-gray-50 text-gray-800 font-bold py-3.5 px-4 rounded-xl transition duration-200 flex items-center justify-center gap-2 shadow-sm border border-gray-300">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                PILIH FOTO (Opsional)
+            </button>
+            <input type="file" id="image-input" accept="image/*" class="hidden" onchange="previewImage(event)">
+
+            <!-- Tombol Download Asli (Canvas) -->
+            <button id="download-btn" onclick="downloadDirectPNG()" class="w-full bg-gray-900 hover:bg-black text-white font-bold py-3.5 px-4 rounded-xl transition duration-200 flex items-center justify-center gap-2 shadow-sm border border-gray-700">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                </svg>
+                <span>SIMPAN GAMBAR (.PNG)</span>
+            </button>
+        </div>
+
+    </div>
+
+    <script>
+        // Fungsi untuk menangani foto yang diupload ke UI Preview
+        function previewImage(event) {
+            const input = event.target;
+            const file = input.files[0];
+            
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const imgElement = document.getElementById('uploaded-image');
+                    imgElement.src = e.target.result;
+                    imgElement.classList.remove('hidden');
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // Fungsi menggambar Frame ke dalam format PNG murni tanpa Library!
+        function downloadDirectPNG() {
+            const btn = document.getElementById('download-btn');
+            const originalHTML = btn.innerHTML;
+            btn.innerHTML = 'Memproses...';
+            btn.disabled = true;
+
+            // 1. Buat kanvas rahasia di memori berukuran asli IG (1080x1350)
+            const canvas = document.createElement('canvas');
+            canvas.width = 1080;
+            canvas.height = 1350;
+            const ctx = canvas.getContext('2d');
+
+            // Agar tulisan bisa menyesuaikan jarak (tracking) secara native di browser
+            if (ctx.letterSpacing !== undefined) {
+                ctx.letterSpacing = "3px";
+            }
+
+            // 2. Gambar foto yang diupload pengguna (Jika Ada) dengan logika Object-Fit: Cover
+            const imgElement = document.getElementById('uploaded-image');
+            if (imgElement.src && imgElement.src !== window.location.href && !imgElement.classList.contains('hidden')) {
+                const img = new Image();
+                img.onload = function() {
+                    drawCoverImage(ctx, img, canvas.width, canvas.height);
+                    drawOverlayAndDownload();
+                };
+                img.src = imgElement.src;
+            } else {
+                // Jika tidak ada foto, biarkan canvas transparan dan langsung gambar overlay
+                drawOverlayAndDownload();
+            }
+
+            // Fungsi pembantu untuk memposisikan foto agar "Cover" / Fit otomatis
+            function drawCoverImage(ctx, img, canvasWidth, canvasHeight) {
+                const imgRatio = img.width / img.height;
+                const canvasRatio = canvasWidth / canvasHeight;
+                let drawWidth, drawHeight, offsetX, offsetY;
+
+                if (imgRatio > canvasRatio) {
+                    drawHeight = canvasHeight;
+                    drawWidth = img.width * (canvasHeight / img.height);
+                    offsetX = (canvasWidth - drawWidth) / 2;
+                    offsetY = 0;
+                } else {
+                    drawWidth = canvasWidth;
+                    drawHeight = img.height * (canvasWidth / img.width);
+                    offsetX = 0;
+                    offsetY = (canvasHeight - drawHeight) / 2;
+                }
+                ctx.drawImage(img, offsetX, offsetY, drawWidth, drawHeight);
+            }
+
+            // Fungsi untuk menggambar ombak, teks, lalu mengunduhnya
+            function drawOverlayAndDownload() {
+                // Konfigurasi koordinat
+                const waveHeight = 50;
+                const boxHeight = 100;
+                const waveY = canvas.height - boxHeight - waveHeight; // 1350 - 100 - 50 = 1200
+                const boxY = canvas.height - boxHeight; // 1250
+
+                // Gambar Ombak Krem Putih
+                const svgString = `
+                    <svg xmlns="http://www.w3.org/2000/svg" width="1080" height="50" preserveAspectRatio="none" viewBox="0 0 1000 105">
+                        <path d="M 0 50 C 75 100, 175 100, 250 50 C 325 0, 425 0, 500 50 C 575 100, 675 100, 750 50 C 825 0, 925 0, 1000 50 L 1000 105 L 0 105 Z" fill="#FBF8F1"></path>
+                    </svg>
+                `;
+                const blob = new Blob([svgString], {type: 'image/svg+xml;charset=utf-8'});
+                const url = URL.createObjectURL(blob);
+                const waveImg = new Image();
+                
+                waveImg.onload = function() {
+                    // Gambar ombak pada Y = 1200
+                    ctx.drawImage(waveImg, 0, waveY, canvas.width, waveHeight);
+                    
+                    // Gambar Kotak Solid Krem Putih pada Y = 1250 sampai bawah
+                    ctx.fillStyle = '#FBF8F1';
+                    ctx.fillRect(0, boxY, canvas.width, boxHeight);
+
+                    // Tulis Teks @renungmenung dengan Presisi Matematis (Posisi Center)
+                    ctx.fillStyle = '#1f2937'; // gray-800
+                    ctx.font = 'bold 36px Arial, sans-serif';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    
+                    // Gambar teks sedikit terangkat ke atas karena kita punya padding pb-4 (sekitar -8px dari center box)
+                    const textY = boxY + (boxHeight / 2) - 8; 
+                    ctx.fillText('@renungmenung', canvas.width / 2, textY);
+
+                    // Picu download file PNG ke perangkat pengguna
+                    const downloadLink = document.createElement('a');
+                    downloadLink.download = 'Frame-renungmenung.png';
+                    downloadLink.href = canvas.toDataURL('image/png');
+                    downloadLink.click();
+
+                    // Kembalikan tombol seperti semula
+                    URL.revokeObjectURL(url);
+                    btn.innerHTML = originalHTML;
+                    btn.disabled = false;
+                };
+                waveImg.src = url;
+            }
+        }
+    </script>
+</body>
+</html>
